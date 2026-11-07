@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Management System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Application Header -->
+        <header class="app-header">
+            <h1>University Management System</h1>
+            <p class="subtitle">Spring Boot</p>
+        </header>
+
+        <!-- Global Alert Message Box -->
+        <div id="alert-box" class="alert-box" style="display: none;"></div>
+
+        <!-- 1. Login Section (shown when logged out) -->
+        <section id="login-section" class="card">
+            <h2>User Login</h2>
+            <p class="text-muted">Enter your email and password to receive a JWT access token.</p>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email Address</label>
+                    <input type="email" id="login-email" placeholder="e.g. admin@university.local" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" placeholder="Enter password (at least 8 characters)" required autocomplete="current-password">
+                </div>
+                <button type="submit" id="btn-login" class="btn btn-primary">Sign In</button>
+            </form>
+            <div class="login-tip">
+                <strong> Admin Account:</strong>
+                <code>admin@university.local</code>
+            </div>
+        </section>
+
+        <!-- 2. Dashboard Section (shown when logged in) -->
+        <section id="dashboard-section" class="card" style="display: none;">
+            <!-- User Status Bar -->
+            <div class="user-status-bar">
+                <div>
+                    <span>Logged in as: <strong id="user-email-display"></strong></span>
+                    <span class="badge" id="user-role-badge"></span>
+                </div>
+                <button id="btn-logout" class="btn btn-secondary">Log Out</button>
+            </div>
+
+            <!-- Role-based Navigation Tabs -->
+            <nav class="nav-tabs" id="role-nav-tabs">
+                <button class="tab-btn" id="tab-admins" data-resource="admins" style="display: none;">Admins</button>
+                <button class="tab-btn" id="tab-teachers" data-resource="teachers" style="display: none;">Teachers</button>
+                <button class="tab-btn" id="tab-students" data-resource="students" style="display: none;">Students</button>
+            </nav>
+
+            <!-- Resource Section Header & Action -->
+            <div class="resource-header">
+                <h3 id="resource-title">Manage Records</h3>
+                <button id="btn-show-create-form" class="btn btn-success">+ Add New</button>
+            </div>
+
+            <!-- Create / Edit Record Form -->
+            <div id="account-form-container" class="form-card" style="display: none;">
+                <h4 id="form-heading">Create Account</h4>
+                <form id="account-form">
+                    <input type="hidden" id="account-id">
+                    <div class="form-group">
+                        <label for="account-name">Full Name</label>
+                        <input type="text" id="account-name" placeholder="Full name " required maxlength="255">
+                    </div>
+                    <div class="form-group">
+                        <label for="account-email">Email Address</label>
+                        <input type="email" id="account-email" placeholder="Email address " required maxlength="254">
+                    </div>
+                    <div class="form-group">
+                        <label for="account-password">Password</label>
+                        <input type="password" id="account-password" placeholder="Password (8 to 72 characters)" required minlength="8" maxlength="72">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" id="btn-save-account" class="btn btn-primary">Save</button>
+                        <button type="button" id="btn-cancel-form" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Records Table -->
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Full Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th style="width: 150px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="records-table-body">
+                        <tr>
+                            <td colspan="5" class="text-center">Loading records...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- Vanilla JavaScript Logic -->
+    <script src="app.js"></script>
+</body>
+</html>
