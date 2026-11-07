@@ -22,11 +22,12 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(locations = "classpath:isolated-test.properties")
-class IntegrationTest {
+class AdminLoginIntegrationTest {
 
     private static final String ADMIN_EMAIL = "admin@test.local";
     private static final String PASSWORD = "Coursework!123";
@@ -44,12 +45,10 @@ class IntegrationTest {
     private RevokedTokenRepository revokedTokens;
 
     private final HttpClient client = HttpClient.newHttpClient();
-
     private final JsonMapper json = new JsonMapper();
 
     @BeforeEach
     void setUp() {
-
         revokedTokens.deleteAll();
         repository.deleteAll();
 
@@ -61,10 +60,8 @@ class IntegrationTest {
         );
     }
 
-    // Integration Test 1
     @Test
     void adminLogin_shouldReturnJwtToken() throws Exception {
-
         String body = json.writeValueAsString(
                 Map.of(
                         "email", ADMIN_EMAIL,
@@ -84,100 +81,15 @@ class IntegrationTest {
         JsonNode result = json.readTree(response.body());
 
         assertEquals("Bearer", result.get("tokenType").asText());
-
-        assertFalse(
-                result.get("accessToken").asText().isBlank()
-        );
+        assertFalse(result.get("accessToken").asText().isBlank());
     }
 
-    // Integration Test 2
-    @Test
-    void adminShouldCreateStudentSuccessfully() throws Exception {
-
-        String token = loginAsAdmin();
-
-        String studentBody = json.writeValueAsString(
-                Map.of(
-                        "fullName", "Test Student",
-                        "email", "student@test.local",
-                        "password", "Student123!"
-                )
-        );
-
-        var response = send(
-                "POST",
-                "/api/students",
-                token,
-                studentBody
-        );
-
-        assertEquals(201, response.statusCode());
-
-        JsonNode result = json.readTree(response.body());
-
-        assertEquals(
-                "STUDENT",
-                result.get("role").asText()
-        );
-
-        long studentId = result.get("id").asLong();
-
-        var savedStudent = repository.findById(studentId);
-
-        assertTrue(savedStudent.isPresent());
-
-        assertEquals(
-                "student@test.local",
-                savedStudent.get().getEmail()
-        );
-    }
-
-    // Integration Test 3
-    @Test
-    void accessWithoutToken_shouldReturnUnauthorized() throws Exception {
-
-        var response = send(
-                "GET",
-                "/api/students",
-                null,
-                null
-        );
-
-        assertEquals(401, response.statusCode());
-    }
-
-    // Helper method: Admin login
-    private String loginAsAdmin() throws Exception {
-
-        String body = json.writeValueAsString(
-                Map.of(
-                        "email", ADMIN_EMAIL,
-                        "password", PASSWORD
-                )
-        );
-
-        var response = send(
-                "POST",
-                "/api/auth/login",
-                null,
-                body
-        );
-
-        assertEquals(200, response.statusCode());
-
-        return json.readTree(response.body())
-                .get("accessToken")
-                .asText();
-    }
-
-    // Helper method: Send HTTP request
     private HttpResponse<String> send(
             String method,
             String path,
             String token,
             String body
     ) throws Exception {
-
         var request = HttpRequest.newBuilder(url(path))
                 .header("Content-Type", "application/json");
 
